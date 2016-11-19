@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+  <head>
+    <title>array-repeat demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+
+    <link rel="import" href="../array-repeat.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+      .vertical-section-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      array-repeat {
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic array-repeat Demo</h3>
+      <array-repeat max="10">
+        <style>
+          .item {
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #eee;
+            min-width: 320px;
+            max-width: 640px;
+            background: #FFF;
+          }
+        </style>
+        <template>
+          <div class="item">
+            <span>[[item.name]]</span>
+            <span>[[item.type]]</span>
+          </div>
+        </template>
+      </array-repeat>
+
+      <script>
+        const repeats = document.querySelectorAll('array-repeat');
+        repeats[0].setAttribute('items', JSON.stringify([{
+          name: 'item 1',
+          type: 'test'
+        }, {
+          name: 'item 2',
+          type: 'test'
+        }, {
+          name: 'item 3',
+          type: 'test'
+        }, {
+          name: 'item 4',
+          type: 'test'
+        }, {
+          name: 'item 5',
+          type: 'test'
+        }, {
+          name: 'item 6',
+          type: 'test'
+        }, {
+          name: 'item 7',
+          type: 'test'
+        }, {
+          name: 'item 8',
+          type: 'test'
+        }, {
+          name: 'item 9',
+          type: 'test'
+        }, {
+          name: 'item 10',
+          type: 'test'
+        }, {
+          name: 'item 11',
+          type: 'test'
+        }, {
+          name: 'item 12',
+          type: 'test'
+        }, {
+          name: 'item 13',
+          type: 'test'
+        }, {
+          name: 'item 14',
+          type: 'test'
+        }, {
+          name: 'item 15',
+          type: 'test'
+        }, {
+          name: 'item 16',
+          type: 'test'
+        }, {
+          name: 'item 17',
+          type: 'test'
+        }, {
+          name: 'item 18',
+          type: 'test'
+        }, {
+          name: 'item 19',
+          type: 'test'
+        }, {
+          name: 'item 20',
+          type: 'test'
+        }, {
+          name: 'item 21',
+          type: 'test'
+        }, {
+          name: 'item 22',
+          type: 'test'
+        }, {
+          name: 'item 23',
+          type: 'test'
+        }, {
+          name: 'item 24',
+          type: 'test'
+        }, {
+          name: 'item 25',
+          type: 'test'
+        }]));
+      </script>
+    </div>
+
+  </body>
+</html>
