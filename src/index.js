@@ -59,7 +59,31 @@ class ArrayRepeat extends HTMLElement {
   set max(value) {
     this._max = this._validateMax(value);
   }
+  /**
+   * @param {array} value
+   */
+  set tasks(value) {
+    this._tasks = value;
+  }
+  /**
+   * @return {array} tasks
+   */
+  get tasks() {
+    return this._tasks || [];
+  }
 
+  /**
+   * @param {array} value
+   */
+  set calls(value) {
+    this._calls = value;
+  }
+  /**
+   * @return {array} tasks
+   */
+  get calls() {
+    return this._calls || 0;
+  }
   /**
    * @return {Array} [{}]
    */
@@ -199,11 +223,57 @@ class ArrayRepeat extends HTMLElement {
    */
   _setupItem(innerHTML, item) {
     return new Promise((resolve, reject) => {
-        for (let prop of Object.keys(item)) {
-          innerHTML = innerHTML
-            .replace(`[[${this.nameSpace}.${prop}]]`, item[prop]);
+        this._forOf(item).then(tasks => {
+          for (let task of tasks) {
+            innerHTML = this._constructItemInnerHTML(task, innerHTML);
+          }
+          resolve(innerHTML);
+        });
+        // for (let prop of Object.keys(item)) {
+        //   innerHTML = innerHTML
+        //     .replace(`[[${this.nameSpace}.${prop}]]`, item[prop]);
+        // }
+        // resolve(innerHTML);
+    });
+  }
+  /**
+   * @param {object} item
+   * @param {string} inner the innerHTML to perform changes on
+   * @return {string} innerHTML
+   */
+  _constructItemInnerHTML(item, inner) {
+    item.name = `[[${this.nameSpace}.${item.key}]]`;
+    inner = inner.replace(item.name, item.value);
+    return inner;
+  }
+  /**
+   * custom for of loop that returns an array & reruns when an object is found
+   * @param {object} item
+   * @return {resolve} promises an array of tasks
+   */
+  _forOf(item) {
+    return new Promise((resolve, reject) => {
+      let oldKey;
+      if (item.key) {
+        oldKey = item.key;
+        item = item.value;
+      }
+      for (let key of Object.keys(item)) {
+        let _key = key;
+        if (oldKey) {
+          _key = `${oldKey}.${key}`;
         }
-        resolve(innerHTML);
+        if (typeof item[key] === 'object') {
+          this._forOf({value: item[key], key: _key});
+        } else {
+          this.tasks.push({value: item[key], key: _key});
+          this.tasks = this.tasks;
+          this.calls += 1;
+        }
+      }
+      if ((this.tasks.length + 1) === this.calls) {
+        return resolve(this.tasks);
+      }
     });
   }
   /**
