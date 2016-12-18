@@ -3,9 +3,7 @@
   "main": "array-repeat.html",
   "version": "0.1.0",
   "dependencies": {
-    "polymer": "2.0-preview"
-  },
-  "resolutions": {
-    "polymer": "2.0-preview"
+    "custom-elements": "webcomponents/custom-elements#v1",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#v1"
   }
 }
