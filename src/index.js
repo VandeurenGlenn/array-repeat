@@ -4,28 +4,6 @@
  */
 class ArrayRepeat extends HTMLElement {
   /**
-   * Returns the element name.
-   * @return {string} 'array-repeat';
-   */
-  static get is() {
-    return 'array-repeat';
-  }
-  /**
-   * Configuration of the element
-   * @return {object} {properties: {}, observers: [], etc}
-   */
-  static get config() {
-    return {
-      properties: {
-        items: Array,
-        nameSpace: {
-          type: String,
-          value: 'item'
-        }
-      }
-    };
-  }
-  /**
    * @return {array} ['items', 'name-space']
    */
   static get observedAttributes() {
@@ -36,24 +14,23 @@ class ArrayRepeat extends HTMLElement {
    */
   constructor() {
     super();
-
+    this.root = this.attachShadow({mode: 'open'});
     this._onScroll = this._onScroll.bind(this);
+    this.style.transform = 'translateZ(0)';
   }
   /**
    * connectedCallback
    */
   connectedCallback() {
-    this._root = this.attachShadow({mode: 'open'});
     if (this.max) {
       this.style.overflowY = 'scroll';
-      this.addEventListener('scroll', this._onScroll);
+      this.addEventListener('scroll', this._onScroll, {capture: true});
     }
     this.nameSpace = 'item';
     this[this.nameSpace] = [];
     this._templateStyles = this.querySelectorAll('style');
   }
   /**
-   * Setter
    * @param {string} value updates the 'name-space' attribute with given value.
    */
   set nameSpace(value) {
@@ -70,49 +47,44 @@ class ArrayRepeat extends HTMLElement {
     return this.getAttribute('name-space') || null;
   }
   /**
-   * Setter
-   * @param {string} value updates the 'items' attribute with given value.
+   * @param {string} value
    */
   set items(value) {
-    if (value) {
-      this.setAttribute('items', JSON.stringify(value));
-    } else {
-      this.removeAttribute('items');
-    }
+    this._items = this._validate(value);
+    this.render();
   }
   /**
-   * Setter
    * @param {number} value The number of items to display until scroll happened
    */
   set max(value) {
-    if (value) {
-      this.setAttribute('max', JSON.stringify(value));
-    } else {
-      this.removeAttribute('max');
-    }
+    this._max = this._validateMax(value);
+  }
+
+  /**
+   * @return {Array} [{}]
+   */
+  get items() {
+    return this._items;
   }
   /**
-   * Getter
-   * @return {number} The number of items to display until scroll happened
+   * @return {number} The number of items to display until scroll happens
    */
   get max() {
-    return Number(this.getAttribute('max'));
+    return this._max || 10;
   }
   /**
-   * Getter
    * @return {HTMLElement} template
    */
   get __itemTemplate() {
-    let child = this.querySelector('template');
-    if (child && child.localName === 'template') {
-      this._itemTemplate = child;
-      return child;
+    let template = this.querySelector('template');
+    if (template && template.localName === 'template') {
+      this._itemTemplate = template;
+      return template;
     } else {
       return null;
     }
   }
   /**
-   * Getter
    * @return {HTMLElement} template
    */
   get itemTemplate() {
@@ -144,25 +116,63 @@ class ArrayRepeat extends HTMLElement {
           this.previousNameSpace = newVal;
         }
       } else if(name === 'items') {
-        this._updateItems(JSON.parse(newVal));
+        this.items = JSON.parse(newVal);
+      } else {
+        this[name] = newVal;
       }
     }
+  }
+  /**
+   * @param {array|object} items
+   * @return {array} items or error
+   */
+  _validate(items) {
+    if (typeof items === 'object') {
+      // when we have a length prop, the object is probably an array
+      if (items.length) {
+        return items;
+      } else {
+        return this._objectToArray(items);
+      }
+    }
+    return console.error('items is not a typeof object');
+  }
+  /**
+   * @param {number} max
+   * @return {number} max or undefined
+   */
+  _validateMax(max) {
+    max = Number(max);
+    if (typeof max === 'NaN') {
+      console.error('max is not a typeof number');
+      return undefined;
+    }
+    return max;
+  }
+  /**
+   * @param {object} object
+   * @return {array} constructed array from object
+   */
+  _objectToArray(object) {
+    let array = [];
+    for (let prop of Object.keys(object)) {
+      if (typeof object[prop] === 'object') {
+        array.push(object[prop]);
+      } else {
+        array[prop] = object[prop];
+      }
+    }
+    return array;
   }
   /**
    * forces an update
    */
   render() {
     this._itemTemplate = null;
-    this._updateItems(this.items);
+    this._setupItems(this.items);
   }
   /**
    * @param {array} items A list with items to display.
-   */
-  _updateItems(items) {
-    this._setupItems(items);
-  }
-  /**
-   * @param {array} items
    */
   _setupItems(items) {
     try {
@@ -226,13 +236,13 @@ class ArrayRepeat extends HTMLElement {
    * @param {string} innerHTML
    */
   _setShadowRoot(innerHTML) {
-    this._root.innerHTML = innerHTML;
+    this.root.innerHTML = innerHTML;
 
-    if (!this._root.querySelector('style')) {
+    if (!this.root.querySelector('style')) {
       for (let style of this.templateStyles) {
-        this._root.appendChild(style);
+        this.root.appendChild(style);
       }
-      this.itemHeight = this._root.querySelector('.item').offsetHeight;
+      this.itemHeight = this.root.children[0].offsetHeight;
     }
   }
   /**
@@ -240,7 +250,11 @@ class ArrayRepeat extends HTMLElement {
    * @param {string} innerHTML
    */
   _updateShadowRoot(innerHTML) {
-    this._root.innerHTML += innerHTML;
+    let innerRoot = this.root.innerHTML;
+    innerRoot += innerHTML;
+    requestAnimationFrame(() => {
+      this.root.innerHTML = innerRoot;
+    });
   }
   /**
    * Queries items for contructing after scroll
@@ -257,9 +271,7 @@ class ArrayRepeat extends HTMLElement {
   _onScroll() {
     if (this.queriedCollection !== undefined) {
       this._constructInnerHTML(this.queriedCollection).then(innerHTML => {
-        requestAnimationFrame(() => {
-          this._updateShadowRoot(innerHTML);
-        });
+        this._updateShadowRoot(innerHTML);
       });
     } else if (this.queriedCollection === undefined) {
       let timeout = () => {
@@ -274,4 +286,4 @@ class ArrayRepeat extends HTMLElement {
     }
   }
 }
-customElements.define(ArrayRepeat.is, ArrayRepeat);
+customElements.define('array-repeat', ArrayRepeat);
