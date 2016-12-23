@@ -1,6 +1,3 @@
-var array-repeat = (function () {
-'use strict';
-
 /**
  * @class ArrayRepeat
  */
@@ -357,6 +354,4 @@ class ArrayRepeat extends HTMLElement {
 }
 customElements.define('array-repeat', ArrayRepeat);
 
-return ArrayRepeat;
-
-}());
+export default ArrayRepeat;

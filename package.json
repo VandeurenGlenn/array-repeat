@@ -1,6 +1,6 @@
 {
   "name": "array-repeat",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "main": "dist/array-repeat.js",
   "directories": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "build": "rollup --config rollup.config.js",
+    "build": "rollup --config rollup.config.js && rollup --config rollup.config.es.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Glenn Vandeuren <vandeurenglenn@gmail.com>",

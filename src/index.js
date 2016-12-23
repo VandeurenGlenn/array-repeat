@@ -2,7 +2,7 @@
 /**
  * @class ArrayRepeat
  */
-class ArrayRepeat extends HTMLElement {
+export default class ArrayRepeat extends HTMLElement {
   /**
    * @return {array} ['items', 'name-space']
    */
