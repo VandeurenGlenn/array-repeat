@@ -29,7 +29,11 @@
       "comma-dangle": ["error", "never"]
     },
     "env": {
-      "browser": true
+      "browser": true,
+      "es6": true
+    },
+    "parserOptions": {
+      "sourceType": "module"
     },
     "extends": ["google", "es2015"]
   }
