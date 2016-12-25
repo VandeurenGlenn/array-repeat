@@ -25,7 +25,7 @@ class ArrayRepeat extends HTMLElement {
    * connectedCallback
    */
   connectedCallback() {
-    if (this.max) {
+    if (this.max && this.items && this.items.length > this.max) {
       this.style.overflowY = 'scroll';
       this.addEventListener('scroll', this._onScroll, { capture: true });
     }
@@ -124,6 +124,19 @@ class ArrayRepeat extends HTMLElement {
     return this._templateStyles || this.querySelectorAll('style');
   }
   /**
+   * @return {boolean} wether or not the item-class-name attribute is present
+   */
+  get _hasItemClassName() {
+    return this.hasAttribute('item-class-name');
+  }
+  /**
+   * @return {string} className to add to the rendered items
+   * @default 'item-class-name'
+   */
+  get itemClassName() {
+    return this._hasItemClassName ? this.getAttribute('item-class-name') : 'array-repeat-item';
+  }
+  /**
    * Attribute observer
    * @param {string} name the name of the attribute that changed
    *
@@ -204,8 +217,10 @@ class ArrayRepeat extends HTMLElement {
   _setupItems(items) {
     try {
       let collection = [];
+      let itemTemplate = this.itemTemplate;
+      itemTemplate.content.children[0].classList.add(this.itemClassName);
       for (let item of items) {
-        this._setupItem(this.itemTemplate.innerHTML, item).then(result => {
+        this._setupItem(itemTemplate.innerHTML, item).then(result => {
           collection.push(result);
           if (items.length === collection.length) {
             this._constructInnerHTML(collection).then(innerHTML => {
@@ -231,11 +246,6 @@ class ArrayRepeat extends HTMLElement {
         }
         resolve(innerHTML);
       });
-      // for (let prop of Object.keys(item)) {
-      //   innerHTML = innerHTML
-      //     .replace(`[[${this.nameSpace}.${prop}]]`, item[prop]);
-      // }
-      // resolve(innerHTML);
     });
   }
   /**
