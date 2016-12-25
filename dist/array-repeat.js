@@ -4,7 +4,6 @@ var array-repeat = (function () {
 /**
  * @class ArrayRepeat
  */
-
 class ArrayRepeat extends HTMLElement {
   /**
    * @return {array} ['items', 'name-space']
@@ -216,19 +215,18 @@ class ArrayRepeat extends HTMLElement {
    */
   _setupItems(items) {
     try {
-      let collection = [];
-      let itemTemplate = this.itemTemplate;
-      itemTemplate.content.children[0].classList.add(this.itemClassName);
+      let promises = [];
       for (let item of items) {
-        this._setupItem(itemTemplate.innerHTML, item).then(result => {
-          collection.push(result);
-          if (items.length === collection.length) {
-            this._constructInnerHTML(collection).then(innerHTML => {
-              this._setShadowRoot(innerHTML);
-            });
-          }
-        });
+        let itemTemplate = this.itemTemplate;
+        itemTemplate.content.children[0].classList.add(this.itemClassName);
+
+        promises.push(this._setupItem(itemTemplate.innerHTML, item));
       }
+      Promise.all(promises).then(result => {
+        this._constructInnerHTML(result).then(innerHTML => {
+          this._setShadowRoot(innerHTML);
+        });
+      });
     } catch (error) {
       console.log(error);
     }
@@ -239,12 +237,17 @@ class ArrayRepeat extends HTMLElement {
    * @return {promise} promise
    */
   _setupItem(innerHTML, item) {
+    this.tasks = [];
+    let calls = 0;
     return new Promise((resolve, reject) => {
       this._forOf(item).then(tasks => {
         for (let task of tasks) {
           innerHTML = this._constructItemInnerHTML(task, innerHTML);
+          calls += 1;
+          if (tasks.length - 1 === calls) {
+            resolve(innerHTML);
+          }
         }
-        resolve(innerHTML);
       });
     });
   }
@@ -280,11 +283,8 @@ class ArrayRepeat extends HTMLElement {
         } else {
           this.tasks.push({ value: item[key], key: _key });
           this.tasks = this.tasks;
-          this.calls += 1;
         }
-      }
-      if (this.tasks.length + 1 === this.calls) {
-        return resolve(this.tasks);
+        resolve(this.tasks);
       }
     });
   }
@@ -304,7 +304,7 @@ class ArrayRepeat extends HTMLElement {
         if (this.max !== undefined && calls === this.max) {
           this._queryItems(items, this.max);
           return resolve(innerHTML);
-        } else if (items.length === calls && calls < this.max && this.max !== undefined) {
+        } else if (items.length === calls && this.max !== undefined && calls < this.max) {
           resolve(innerHTML);
         }
       }
