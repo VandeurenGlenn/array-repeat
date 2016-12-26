@@ -1,7 +1,7 @@
 /**
  * @class ArrayRepeat
  */
- export default class ArrayRepeat extends HTMLElement {
+export default class ArrayRepeat extends HTMLElement {
   /**
    * @return {array} ['items', 'name-space']
    */
@@ -217,7 +217,8 @@
       for (let item of items) {
         let itemTemplate = this.itemTemplate;
         itemTemplate.content.children[0].classList.add(this.itemClassName);
-
+        itemTemplate.content.children[0].classList.add(
+          `${this.itemClassName}-${items.indexOf(item) + 1}`);
         promises.push(this._setupItem(itemTemplate.innerHTML, item));
       }
       Promise.all(promises).then(result => {
@@ -242,7 +243,7 @@
         for (let task of tasks) {
           innerHTML = this._constructItemInnerHTML(task, innerHTML);
           calls += 1;
-          if ((tasks.length - 1) === calls) {
+          if (tasks.length === calls) {
             resolve(innerHTML);
           }
         }
