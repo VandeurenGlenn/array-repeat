@@ -216,7 +216,7 @@ class ArrayRepeat extends HTMLElement {
       for (let item of items) {
         let itemTemplate = this.itemTemplate;
         itemTemplate.content.children[0].classList.add(this.itemClassName);
-
+        itemTemplate.content.children[0].classList.add(`${ this.itemClassName }-${ items.indexOf(item) + 1 }`);
         promises.push(this._setupItem(itemTemplate.innerHTML, item));
       }
       Promise.all(promises).then(result => {
@@ -241,7 +241,7 @@ class ArrayRepeat extends HTMLElement {
         for (let task of tasks) {
           innerHTML = this._constructItemInnerHTML(task, innerHTML);
           calls += 1;
-          if (tasks.length - 1 === calls) {
+          if (tasks.length === calls) {
             resolve(innerHTML);
           }
         }
@@ -296,6 +296,7 @@ class ArrayRepeat extends HTMLElement {
       let calls = 0;
       this.queriedCollection = undefined;
       for (let item of items) {
+        console.log(item);
         calls += 1;
         innerHTML += item;
         if (this.max !== undefined && calls === this.max) {
