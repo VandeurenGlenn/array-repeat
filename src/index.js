@@ -221,6 +221,7 @@ export default class ArrayRepeat extends HTMLElement {
           `${this.itemClassName}-${items.indexOf(item) + 1}`);
         promises.push(this._setupItem(itemTemplate.innerHTML, item));
       }
+
       Promise.all(promises).then(result => {
         this._constructInnerHTML(result).then(innerHTML => {
           this._setShadowRoot(innerHTML);

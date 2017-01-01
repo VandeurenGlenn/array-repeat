@@ -1,8 +1,11 @@
-import babel from 'rollup-plugin-babel'
+import babel from 'rollup-plugin-babel';
 
 export default {
   entry: 'src/index.js',
   dest: 'dist/array-repeat.es.js',
   format: 'es',
-  plugins: [ babel() ] //run babel
-}
+  plugins: [babel({
+      babelrc: false,
+      plugins: ['transform-async-to-generator', 'external-helpers']
+  })] // run babel
+};

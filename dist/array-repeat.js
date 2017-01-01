@@ -1,4 +1,4 @@
-var array-repeat = (function () {
+var ArrayRepeat = (function () {
 'use strict';
 
 /**
@@ -222,6 +222,7 @@ class ArrayRepeat extends HTMLElement {
         itemTemplate.content.children[0].classList.add(`${ this.itemClassName }-${ items.indexOf(item) + 1 }`);
         promises.push(this._setupItem(itemTemplate.innerHTML, item));
       }
+
       Promise.all(promises).then(result => {
         this._constructInnerHTML(result).then(innerHTML => {
           this._setShadowRoot(innerHTML);
@@ -299,7 +300,6 @@ class ArrayRepeat extends HTMLElement {
       let calls = 0;
       this.queriedCollection = undefined;
       for (let item of items) {
-        console.log(item);
         calls += 1;
         innerHTML += item;
         if (this.max !== undefined && calls === this.max) {

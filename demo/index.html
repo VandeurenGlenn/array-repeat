@@ -139,7 +139,15 @@
       repeats[1].items = {
         item: {
           name: 1,
-          type: 'object'
+          type: 'object',
+          object: {
+            name: 'objectInObject',
+            depth: 1,
+            object: {
+              name: 'objectInObject',
+              depth: 2
+            }
+          }
         },
         item2: {
           name: 2,
