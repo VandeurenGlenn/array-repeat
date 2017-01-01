@@ -1,6 +1,6 @@
 {
   "name": "array-repeat",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "",
   "main": "dist/array-repeat.js",
   "directories": {
