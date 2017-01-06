@@ -40,6 +40,7 @@
               min-width: 320px;
               max-width: 640px;
               background: #FFF;
+              cursor: pointer;
             }
           </style>
           <template>
@@ -51,8 +52,8 @@
         </array-repeat>
       </div>
       <div class="vertical-section-container centered">
-        <h2>Using an object</h2>
-        <array-repeat>
+        <h2>Using an object with select disabled</h2>
+        <array-repeat disable-select>
           <style>
             .item {
               display: flex;
@@ -63,6 +64,13 @@
               min-width: 320px;
               max-width: 640px;
               background: #FFF;
+            }
+            .item.selected {
+              background-color: #EEE;
+            }
+            :host([disable-select]) .item * {
+              pointer-events: none;
+              user-select: none;
             }
           </style>
           <template>
@@ -162,6 +170,10 @@
           }
         }
       };
+
+      repeats[0].addEventListener('on-item-select', function(event) {
+        console.log(event);
+      })
     </script>
   </body>
 </html>

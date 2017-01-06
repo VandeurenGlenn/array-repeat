@@ -1,7 +1,7 @@
 import babel from 'rollup-plugin-babel';
 
 export default {
-  entry: 'src/index.js',
+  entry: '.tmp/index.js',
   dest: 'dist/array-repeat.js',
   format: 'iife', // common javascript,
   moduleName: 'ArrayRepeat',

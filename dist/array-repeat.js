@@ -9,7 +9,7 @@ class ArrayRepeat extends HTMLElement {
    * @return {array} ['items', 'name-space']
    */
   static get observedAttributes() {
-    return ['items', 'name-space', 'max'];
+    return ['items', 'name-space', 'max', 'disable-select'];
   }
   /**
    * constructor
@@ -17,8 +17,17 @@ class ArrayRepeat extends HTMLElement {
   constructor() {
     super();
     this.root = this.attachShadow({ mode: 'open' });
+    this.root.innerHTML = `<style>
+    :host {
+      transform: translateZ(0);
+      user-select: none;
+    }
+    .selected {
+      background-color: #EEE;
+    }
+  </style>`;
     this._onScroll = this._onScroll.bind(this);
-    this.style.transform = 'translateZ(0)';
+    this._onClick = this._onClick.bind(this);
   }
   /**
    * connectedCallback
@@ -30,7 +39,7 @@ class ArrayRepeat extends HTMLElement {
     }
     this.nameSpace = 'item';
     this[this.nameSpace] = [];
-    this._templateStyles = this.querySelectorAll('style');
+    this.root.addEventListener('click', this._onClick, { capture: true });
   }
   /**
    * @param {string} value updates the 'name-space' attribute with given value.
@@ -117,6 +126,13 @@ class ArrayRepeat extends HTMLElement {
     return this._itemTemplate || this.__itemTemplate;
   }
   /**
+   * @param {array} value style's defined in template
+   * @private
+   */
+  set templateStyles(value) {
+    this._templateStyles = value;
+  }
+  /**
    * @return {array} style's defined in template
    */
   get templateStyles() {
@@ -134,6 +150,21 @@ class ArrayRepeat extends HTMLElement {
    */
   get itemClassName() {
     return this._hasItemClassName ? this.getAttribute('item-class-name') : 'array-repeat-item';
+  }
+  /**
+   * @return {boolean} true when the disable-select attribute is used or
+   * the disableSelect property is set to true.
+   * @default false
+   */
+  get disableSelect() {
+    return this._disableSelect || this.hasAttribute('disable-select');
+  }
+  /**
+   * @param {boolean} value
+   * @private
+   */
+  set disableSelect(value) {
+    this._disableSelect = value;
   }
   /**
    * Attribute observer
@@ -157,7 +188,7 @@ class ArrayRepeat extends HTMLElement {
       } else if (name === 'items') {
         this.items = JSON.parse(newVal);
       } else {
-        this[name] = newVal;
+        this[this._toJsProp(name)] = newVal;
       }
     }
   }
@@ -217,9 +248,10 @@ class ArrayRepeat extends HTMLElement {
     try {
       let promises = [];
       for (let item of items) {
-        let itemTemplate = this.itemTemplate;
-        itemTemplate.content.children[0].classList.add(this.itemClassName);
-        itemTemplate.content.children[0].classList.add(`${ this.itemClassName }-${ items.indexOf(item) + 1 }`);
+        let itemTemplate = this.itemTemplate.cloneNode(true);
+        let child = itemTemplate.content.children[0];
+        child.classList.add(this.itemClassName);
+        child.classList.add(`${ this.itemClassName }-${ items.indexOf(item) + 1 }`);
         promises.push(this._setupItem(itemTemplate.innerHTML, item));
       }
 
@@ -364,6 +396,34 @@ class ArrayRepeat extends HTMLElement {
       };
       timeout();
     }
+  }
+
+  _onClick(event) {
+    let paths = event.path;
+    for (let el of paths) {
+      if (el.classList && el.classList.contains(this.itemClassName)) {
+        // event.target = path;
+        if (!this.disableSelect) el.classList.add('selected');
+        if (this.lastSelected && this.lastSelected !== el) {
+          this.lastSelected.classList.remove('selected');
+        }
+        this.lastSelected = el;
+        return this.dispatchEvent(new CustomEvent('on-item-select', { detail: { target: el } }));
+      }
+    }
+  }
+  /**
+   * Converts an attribute's name to an javascript property name
+   * @param {string} string
+   * @return {string} converted string
+   */
+  _toJsProp(string) {
+    let parts = string.split('-');
+    if (parts.length > 1) {
+      let upper = parts[1].charAt(0).toUpperCase();
+      string = parts[0] + upper + parts[1].slice(1).toLowerCase();
+    }
+    return string;
   }
 }
 customElements.define('array-repeat', ArrayRepeat);

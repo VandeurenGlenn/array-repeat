@@ -1,7 +1,7 @@
 {
   "name": "array-repeat",
   "main": "array-repeat.html",
-  "version": "0.2.4",
+  "version": "0.2.6",
   "dependencies": {
     "custom-elements": "webcomponents/custom-elements#v1",
     "webcomponentsjs": "webcomponents/webcomponentsjs#v1"
