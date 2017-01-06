@@ -240,9 +240,11 @@ export default class ArrayRepeat extends HTMLElement {
       for (let item of items) {
         let itemTemplate = this.itemTemplate.cloneNode(true);
         let child = itemTemplate.content.children[0];
+        let index = items.indexOf(item);
         child.classList.add(this.itemClassName);
         child.classList.add(
-          `${this.itemClassName}-${items.indexOf(item) + 1}`);
+          `${this.itemClassName}-${index + 1}`);
+          child.dataset.index = index;
         promises.push(this._setupItem(itemTemplate.innerHTML, item));
       }
 
@@ -394,6 +396,7 @@ export default class ArrayRepeat extends HTMLElement {
     let paths = event.path;
     for (let el of paths) {
       if (el.classList && el.classList.contains(this.itemClassName)) {
+        let model = this.items[el.dataset.index];
         // event.target = path;
         if (!this.disableSelect) el.classList.add('selected');
         if (this.lastSelected && this.lastSelected !== el) {
@@ -401,7 +404,7 @@ export default class ArrayRepeat extends HTMLElement {
         }
         this.lastSelected = el;
         return this.dispatchEvent(new CustomEvent('on-item-select',
-          {detail: {target: el}}));
+          {detail: {target: el, data: model}}));
       }
     }
   }
