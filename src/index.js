@@ -138,8 +138,7 @@ export default class ArrayRepeat extends HTMLElement {
    * @default 'item-class-name'
    */
   get itemClassName() {
-    return this._hasItemClassName ? this.getAttribute('item-class-name') :
-      'array-repeat-item';
+    return this._hasItemClassName ? this.getAttribute('item-class-name') : 'array-repeat-item';
   }
   /**
    * @return {boolean} true when the disable-select attribute is used or
@@ -242,9 +241,9 @@ export default class ArrayRepeat extends HTMLElement {
         let child = itemTemplate.content.children[0];
         let index = items.indexOf(item);
         child.classList.add(this.itemClassName);
-        child.classList.add(
-          `${this.itemClassName}-${index + 1}`);
-          child.dataset.index = index;
+        child.classList.add(`${ this.itemClassName }-${ index + 1 }`);
+        child.dataset.index = index;
+				item.index = index;
         promises.push(this._setupItem(itemTemplate.innerHTML, item));
       }
 
@@ -330,8 +329,7 @@ export default class ArrayRepeat extends HTMLElement {
         if (this.max !== undefined && calls === this.max) {
           this._queryItems(items, this.max);
           return resolve(innerHTML);
-        } else if (items.length === calls &&
-                  this.max !== undefined && calls < this.max) {
+        } else if (items.length === calls && this.max !== undefined && calls < this.max) {
           resolve(innerHTML);
         }
       }
@@ -342,14 +340,16 @@ export default class ArrayRepeat extends HTMLElement {
    * @param {string} innerHTML
    */
   _setShadowRoot(innerHTML) {
-    this.root.innerHTML = innerHTML;
-
-    if (!this.root.querySelector('style')) {
-      for (let style of this.templateStyles) {
-        this.root.appendChild(style);
-      }
-      this.itemHeight = this.root.children[0].offsetHeight;
+    this.root.innerHTML = `<slot name="style"></slot>
+  ${innerHTML}
+  `;
+    if (!this.renderedStyles) {
+      this.renderedStyles = this.querySelectorAll('style');
     }
+    for (let style of this.renderedStyles) {
+      this.root.appendChild(style).cloneNode(true);
+    }
+    this.itemHeight = this.root.children[0].offsetHeight;
   }
   /**
    * Update shadowRoot content
@@ -403,8 +403,7 @@ export default class ArrayRepeat extends HTMLElement {
           this.lastSelected.classList.remove('selected');
         }
         this.lastSelected = el;
-        return this.dispatchEvent(new CustomEvent('on-item-select',
-          {detail: {target: el, data: model}}));
+        return this.dispatchEvent(new CustomEvent('on-item-select', {detail: {target: el, data: model}}));
       }
     }
   }
@@ -422,4 +421,5 @@ export default class ArrayRepeat extends HTMLElement {
     return string;
   }
 }
+
 customElements.define('array-repeat', ArrayRepeat);
