@@ -252,8 +252,9 @@ class ArrayRepeat extends HTMLElement {
         let child = itemTemplate.content.children[0];
         let index = items.indexOf(item);
         child.classList.add(this.itemClassName);
-        child.classList.add(`${ this.itemClassName }-${ index + 1 }`);
+        child.classList.add(`${this.itemClassName}-${index + 1}`);
         child.dataset.index = index;
+        item.index = index;
         promises.push(this._setupItem(itemTemplate.innerHTML, item));
       }
 
@@ -292,8 +293,8 @@ class ArrayRepeat extends HTMLElement {
    * @return {string} innerHTML
    */
   _constructItemInnerHTML(item, inner) {
-    item.name = `[[${ this.nameSpace }.${ item.key }]]`;
-    inner = inner.replace(item.name, item.value);
+    item.name = `[[${this.nameSpace}.${item.key}]]`;
+    inner = inner.replace(new RegExp(item.name, 'g'), item.value);
     return inner;
   }
   /**
@@ -311,7 +312,7 @@ class ArrayRepeat extends HTMLElement {
       for (let key of Object.keys(item)) {
         let _key = key;
         if (oldKey) {
-          _key = `${ oldKey }.${ key }`;
+          _key = `${oldKey}.${key}`;
         }
         if (typeof item[key] === 'object') {
           this._forOf({ value: item[key], key: _key });
@@ -350,14 +351,16 @@ class ArrayRepeat extends HTMLElement {
    * @param {string} innerHTML
    */
   _setShadowRoot(innerHTML) {
-    this.root.innerHTML = innerHTML;
-
-    if (!this.root.querySelector('style')) {
-      for (let style of this.templateStyles) {
-        this.root.appendChild(style);
-      }
-      this.itemHeight = this.root.children[0].offsetHeight;
+    this.root.innerHTML = `<slot name="style"></slot>
+  ${innerHTML}
+  `;
+    if (!this.renderedStyles) {
+      this.renderedStyles = this.querySelectorAll('style');
     }
+    for (let style of this.renderedStyles) {
+      this.root.appendChild(style).cloneNode(true);
+    }
+    this.itemHeight = this.root.children[0].offsetHeight;
   }
   /**
    * Update shadowRoot content
@@ -429,6 +432,7 @@ class ArrayRepeat extends HTMLElement {
     return string;
   }
 }
+
 customElements.define('array-repeat', ArrayRepeat);
 
 return ArrayRepeat;
