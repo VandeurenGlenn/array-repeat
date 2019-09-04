@@ -284,8 +284,10 @@ export default class ArrayRepeat extends HTMLElement {
   _constructItemInnerHTML(item, inner) {
     item.name = `[[${ this.nameSpace }.${ item.key }]]`;
     const keys = inner.match(`/${item.name}/g`);
-    for (var i = 0; i < keys.length; i++) {
-      inner = inner.replace(item.name, item.value);
+    if (keys) {
+      for (let i = 0; i < keys.length; i++) {
+        inner = inner.replace(item.name, item.value);
+      }
     }
     return inner;
   }
