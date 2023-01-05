@@ -20,7 +20,7 @@
     "eslint-config-es2015": "^1.1.0",
     "eslint-config-google": "^0.7.0",
     "rollup": "^0.36.3",
-    "rollup-plugin-babel": "^2.6.1"
+    "rollup-plugin-babel": "^4.4.0"
   },
   "license": "MIT",
   "eslintConfig": {
